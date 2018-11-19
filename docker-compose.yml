@@ -11,6 +11,6 @@ services:
       - yarn-cache
 
   yarn-cache:
-    image: node@11.1.0
+    image: busybox
     volumes:
-- /root/.yarn-cache
+      - /root/.yarn-cache
