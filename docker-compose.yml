@@ -1,0 +1,16 @@
+version: '2'
+services:
+  app:
+    build: .
+    ports:
+      - '8080:8080'
+    command: yarn start
+    volumes:
+      - .:/usr/src/app
+    volumes_from:
+      - yarn-cache
+
+  yarn-cache:
+    image: node@11.1.0
+    volumes:
+- /root/.yarn-cache
