@@ -8,28 +8,47 @@ const obfuscate = require('gulp-obfuscate');
 const srcDir = '..';
 const destDir = 'lib';
 
-const getFolders = (dir) => {
+const folders = ((dir) => {
   return fs.readdirSync(dir)
     .filter((file) => {
       return fs.statSync(path.join(dir, file)).isDirectory();
     });
-};
+})(srcDir);
 
-gulp.task('uglifyJs', () => {
-  //调用getFolders方法获取到文件集合
-  const folders = getFolders(srcDir);
+gulp.task('copyFiles', () => {
   //遍历得到每一个子文件
   const tasks = folders.map((folder) => {
-    gulp.src([`${srcDir}/${folder}/**/*.js`, '!gulpfile.js', '!build/*.js', '!node_modules/**/*.js', '!lib/**/*.js'])
-      .pipe(babel({ presets: ['@babel/env'] }))
-      //压缩js
-      .pipe(uglify({
-        toplevel: true
-      }))
-      .pipe(obfuscate())
-      //输出文件
+
+    gulp.src([
+      `${srcDir}/${folder}/**/*`,
+      `!${srcDir}/${folder}/**/*.js`,
+      '!bin/**',
+      '!build/**',
+      '!lib/**',
+      '!node_modules/**'])
       .pipe(gulp.dest(destDir));
   });
 
   return tasks;
 });
+
+gulp.task('uglifyJs', () => {
+  //遍历得到每一个子文件
+  const tasks = folders.map((folder) => {
+
+    gulp.src([
+      `${srcDir}/${folder}/**/*.js`,
+      '!gulpfile.js',
+      '!build/*.js',
+      '!node_modules/**/*.js',
+      '!lib/**/*.js'])
+      .pipe(babel({ presets: ['@babel/env'] }))
+      .pipe(uglify({ toplevel: true }))
+      .pipe(obfuscate())
+      .pipe(gulp.dest(destDir));
+  });
+
+  return tasks;
+});
+
+gulp.task('default', ['copyFiles', 'uglifyJs']);
